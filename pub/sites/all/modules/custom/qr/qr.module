@@ -50,12 +50,9 @@ function qr_node_view($node, $view_mode, $langcode) {
       switch ($node->type) {
         case 'product':
           $node->content['qr_link'] = array(
-            //'#theme' => 'barcode_image',
-            //'#variables' => qr_get_qr_variables($node),  
             '#type' => 'markup',
             '#markup' => theme('barcode_image', qr_get_qr_variables($node)),
           );
-          dpm($node);
           break;
 
         default:
