@@ -1,0 +1,83 @@
+<?php
+/**
+ * @file
+ *
+ * Helper module to generate QR codes from urls automatically.
+ */
+
+/**
+ * Implements hook_menu().
+ */
+/*function qr_menu() {
+  $items['admin/config/media/qr'] = array(
+    'title' => 'QR Settings',
+    'description' => 'Configure QR settings.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('qr_admin_settings'),
+    'access arguments' => array('administer site configuration'),
+    'file' => 'qr.admin.inc',
+  );
+  return $items;
+}*/
+
+/**
+ * Implements hook_theme().
+ */
+/*function qr_theme() {
+  $themes = array();
+
+  return array(
+    'barcode_image' => array(
+      'variables' => array(
+        'barcode_value' => NULL,
+        'encoding' => NULL,
+        'height' => NULL,
+        'scale' => NULL,
+        'bgcolor' => NULL,
+        'barcolor' => NULL,
+        'image_format' => NULL,
+      ),
+    ),
+  );
+}*/
+
+/**
+ * Implements hook_node_view().
+ */
+function qr_node_view($node, $view_mode, $langcode) {
+  switch ($view_mode) {
+    case 'full':
+      switch ($node->type) {
+        case 'product':
+          $node->content['qr_link'] = array(
+            '#type' => 'markup',
+            '#markup' => theme('barcode_image', qr_get_qr_variables($node)),
+          );
+          break;
+
+        default:
+          break;
+      }
+      break;
+
+    default:
+      break;
+  }
+}
+
+/**
+ * Helper function to acquire variables.
+ */
+function qr_get_qr_variables($node) {
+  $vars = array(
+    'barcode_value' => url('node/' . $node->nid, array('absolute' => TRUE)),
+    'encoding' => 'QRCODE',
+    'height' => 300,
+    'scale' => NULL,
+    'bgcolor' => NULL,
+    'barcolor' => NULL,
+    'image_format' => 'png',
+  );
+  return $vars;
+}
+

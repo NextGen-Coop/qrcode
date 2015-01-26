@@ -1,0 +1,9 @@
+name = QR
+description = Generates QR codes on the fly..
+core = 7.x
+package = QR
+
+dependencies[] = barcode
+
+;configure = admin/config/media/barcode
+
