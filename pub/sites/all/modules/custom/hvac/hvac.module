@@ -4,6 +4,7 @@
  *
  * Helper module to generate hvac codes from urls automatically.
  */
+include_once 'hvac.computed_fields.inc';
 
 /**
  * Implements hook_menu().
