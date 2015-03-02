@@ -29,6 +29,8 @@ function hvac_node_view($node, $view_mode, $langcode) {
     case 'full':
       switch ($node->type) {
         case 'product':
+          //$fields = field_read_instances(NULL);
+          //dpm($fields);
           break;
 
         default:
