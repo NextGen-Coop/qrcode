@@ -5,19 +5,316 @@
  */
 
 /**
+ * Implements hook_field_nameplate_calculated_hp_compute().
+ *
+ * ( system_design_voltage * rated_load_amperage * nameplate_rated_fl_efficiency * SQRT( 3 ) * nameplate_power_factor ) / 746
+ */
+function computed_field_field_nameplate_calculated_hp_compute(&$entity_field, $entity_type, $entity, $field, $instance, $langcode, $items) {
+  $values = ($entity->field_system_design_voltage[$langcode][0]['value']
+    * $entity->field_rated_load_amperage[$langcode][0]['value']
+    * $entity->field_nameplate_rated_efficiency[$langcode][0]['value']
+    * sqrt(3)
+    * $entity->field_nameplate_power_factor[$langcode][0]['value'])
+    / 746;
+  $entity_field[$langcode][0]['value'] = $values;
+}
+
+/**
+ * Implements hook_field_nameplate_calculated_hp_display().
+ */
+function computed_field_field_nameplate_calculated_hp_display($field, $entity_field_item, $entity_lang, $langcode, $entity) {
+  return $entity_field_item['value'];
+}
+
+/**
+ * Implements hook_field_motor_kw_at_fla_compute().
+ * 
+ * ( system_design_voltage * rated_load_amperage * SQRT( 3 ) * nameplate_power_factor ) / 1000
+ */
+function computed_field_field_motor_kw_at_fla_compute(&$entity_field, $entity_type, $entity, $field, $instance, $langcode, $items) {
+  $values = ($entity->field_system_design_voltage[$langcode][0]['value']
+    * $entity->field_rated_load_amperage[$langcode][0]['value']
+    * sqrt(3)
+    * $entity->field_nameplate_power_factor[$langcode][0]['value'])
+    / 1000;
+  $entity_field[$langcode][0]['value'] = $values;
+}
+
+/**
+ * Implements hook_field_motor_kw_at_fla_display().
+ */
+function computed_field_field_motor_kw_at_fla_display($field, $entity_field_item, $entity_lang, $langcode, $entity) {
+  return $entity_field_item['value'];
+}
+
+/**
+ * Implements hook_field_kva_compute().
+ *
+ * (SQRT(3) * system_design_voltage * system_rated_load_average) / 1000
+ */
+function computed_field_field_kva_compute(&$entity_field, $entity_type, $entity, $field, $instance, $langcode, $items) {
+  $values = (sqrt(3)
+    * $entity->field_system_design_voltage[$langcode][0]['value']
+    * $entity->field_rated_load_amperage[$langcode][0]['value'])
+    / 1000;
+  $entity_field[$langcode][0]['value'] = $values;
+}
+
+/**
+ * Implements hook_field_kva_display().
+ */
+function computed_field_field_kva_display($field, $entity_field_item, $entity_lang, $langcode, $entity) {
+  return $entity_field_item['value'];
+}
+
+/**
+ * Implements hook_field_phase_average_volts_compute().
+ *
+ * AVERAGE( a_b_phase_rms_volts, b_c_phase_rms_volts, c_a_phase_rms_volts )
+ */
+function computed_field_field_phase_average_volts_compute(&$entity_field, $entity_type, $entity, $field, $instance, $langcode, $items) {
+  $values = array(
+    $entity->field_a_b_phase_rms_volts[$langcode][0]['value'],
+    $entity->field_b_c_phase_rms_volts[$langcode][0]['value'],
+    $entity->field_c_a_phase_rms_volts[$langcode][0]['value'],
+  );
+  $entity_field[$langcode][0]['value'] = array_sum($values) / count($values);
+}
+
+/**
+ * Implements hook_field_phase_average_volts_display().
+ */
+function computed_field_field_phase_average_volts_display($field, $entity_field_item, $entity_lang, $langcode, $entity) {
+  return $entity_field_item['value'];
+}
+
+/**
+ * Implements hook_field_max_voltage_compute().
+ *
+ * MAX( a_b_phase_rms_volts, b_c_phase_rms_volts, c_a_phase_rms_volts )
+ */
+function computed_field_field_max_voltage_compute(&$entity_field, $entity_type, $entity, $field, $instance, $langcode, $items) {
+  $values = array(
+    $entity->field_a_b_phase_rms_volts[$langcode][0]['value'],
+    $entity->field_b_c_phase_rms_volts[$langcode][0]['value'],
+    $entity->field_c_a_phase_rms_volts[$langcode][0]['value'],
+  );
+  $entity_field[$langcode][0]['value'] = max($values);
+}
+
+/**
+ * Implements hook_field_max_voltage_display().
+ */
+function computed_field_field_max_voltage_display($field, $entity_field_item, $entity_lang, $langcode, $entity) {
+  return $entity_field_item['value'];
+}
+
+/**
+ * Implements hook_field_b_c_phase_absolute_v_ave_compute().
+ *
+ * ABS( phase_average_volts - b_c_phase_rms_volts )
+ */
+function computed_field_field_b_c_phase_absolute_v_ave_compute(&$entity_field, $entity_type, $entity, $field, $instance, $langcode, $items) {
+  $values = $entity->field_phase_average_volts[$langcode][$langcode][0]['value']
+    - $entity->field_b_c_phase_rms_volts[$langcode][0]['value'];
+  $entity_field[$langcode][0]['value'] = abs($values);
+}
+
+/**
+ * Implements hook_field_b_c_phase_absolute_v_ave_display().
+ */
+function computed_field_field_b_c_phase_absolute_v_ave_display($field, $entity_field_item, $entity_lang, $langcode, $entity) {
+  return $entity_field_item['value'];
+}
+
+/**
+ * Implements hook_field_c_a_phase_absolute_v_ave_compute().
+ *
+ * ABS( phase_average_volts - c_a_phase_rms_volts )
+ */
+function computed_field_field_c_a_phase_absolute_v_ave_compute(&$entity_field, $entity_type, $entity, $field, $instance, $langcode, $items) {
+  $values = $entity->field_phase_average_volts[$langcode][$langcode][0]['value']
+    - $entity->field_c_a_phase_rms_volts[$langcode][0]['value'];
+  $entity_field[$langcode][0]['value'] = abs($values);
+}
+
+/**
+ * Implements hook_field_c_a_phase_absolute_v_ave_display().
+ */
+function computed_field_field_c_a_phase_absolute_v_ave_display($field, $entity_field_item, $entity_lang, $langcode, $entity) {
+  return $entity_field_item['value'];
+}
+
+/**
+ * Implements hook_field_total_volt_imbalance_compute().
+ *
+ * SUM( a_b_phase_absolute_v_ave, b_c_phase_absolute_v_ave, c_a_phase_absolute_v_ave ) / 2
+ */
+function computed_field_field_total_volt_imbalance_compute(&$entity_field, $entity_type, $entity, $field, $instance, $langcode, $items) {
+  $values = array(
+    $entity->field_a_b_phase_absolute_v_ave,
+    $entity->field_b_c_phase_absolute_v_ave,
+    $entity->field_c_a_phase_absolute_v_ave,
+  );
+  $entity_field[$langcode][0]['value'] = array_sum($values);
+}
+
+/**
+ * Implements hook_field_total_volt_imbalance_display().
+ */
+function computed_field_field_total_volt_imbalance_display($field, $entity_field_item, $entity_lang, $langcode, $entity) {
+  return $entity_field_item['value'];
+}
+
+/**
+ * Implements hook_field_phase_average_amps_compute().
+ *
+ * AVERAGE( measured_a_phase_amps, measured_b_phase_amps, measured_c_phase_amps )
+ */
+function computed_field_field_phase_average_amps_compute(&$entity_field, $entity_type, $entity, $field, $instance, $langcode, $items) {
+  $values = array(
+    $entity->field_measured_a_phase_amps[$langcode][0]['value'],
+    $entity->field_measured_b_phase_amps[$langcode][0]['value'],
+    $entity->field_measured_c_phase_amps[$langcode][0]['value'],
+  );
+  $entity_field[$langcode][0]['value'] = array_sum($values) / count($values);
+}
+
+/**
+ * Implements hook_field_phase_average_amps_display().
+ */
+function computed_field_field_phase_average_amps_display($field, $entity_field_item, $entity_lang, $langcode, $entity) {
+  return $entity_field_item['value'];
+}
+
+/**
+ * Implements hook_field_max_amperage_compute().
+ *
+ * MAX( measured_a_phase_amps, measured_b_phase_amps, measured_c_phase_amps )
+ */
+function computed_field_field_max_amperage_compute(&$entity_field, $entity_type, $entity, $field, $instance, $langcode, $items) {
+  $values = array(
+    $entity->field_measured_a_phase_amps[$langcode][0]['value'],
+    $entity->field_measured_b_phase_amps[$langcode][0]['value'],
+    $entity->field_measured_c_phase_amps[$langcode][0]['value'],
+  );
+  $entity_field[$langcode][0]['value'] = max($values);
+}
+
+/**
+ * Implements hook_field_max_amperage_display().
+ */
+function computed_field_field_max_amperage_display($field, $entity_field_item, $entity_lang, $langcode, $entity) {
+  return $entity_field_item['value'];
+}
+
+/**
+ * Implements hook_field_a_b_phase_absolute_a_ave_compute().
+ *
+ * ABS( phase_average_amps - measured_a_phase_amps )
+ */
+function computed_field_field_a_b_phase_absolute_a_ave_compute(&$entity_field, $entity_type, $entity, $field, $instance, $langcode, $items) {
+  $values = $entity->field_phase_average_amps[$langcode][$langcode][0]['value']
+    - $entity->field_measured_a_phase_amps[$langcode][0]['value'];
+  $entity_field[$langcode][0]['value'] = abs($values);
+}
+
+/**
+ * Implements hook_field_a_b_phase_absolute_a_ave_display().
+ */
+function computed_field_field_a_b_phase_absolute_a_ave_display($field, $entity_field_item, $entity_lang, $langcode, $entity) {
+  return $entity_field_item['value'];
+}
+
+/**
+ * Implements hook_field_b_c_phase_absolute_a_ave_compute().
+ *
+ * ABS( phase_average_amps - measured_b_phase_amps )
+ */
+function computed_field_field_b_c_phase_absolute_a_ave_compute(&$entity_field, $entity_type, $entity, $field, $instance, $langcode, $items) {
+  $values = $entity->field_phase_average_amps[$langcode][$langcode][0]['value']
+    - $entity->field_measured_b_phase_amps[$langcode][0]['value'];
+  $entity_field[$langcode][0]['value'] = abs($values);
+}
+
+/**
+ * Implements hook_field_b_c_phase_absolute_a_ave_display().
+ */
+function computed_field_field_b_c_phase_absolute_a_ave_display($field, $entity_field_item, $entity_lang, $langcode, $entity) {
+  return $entity_field_item['value'];
+}
+
+/**
+ * Implements hook_field_c_a_phase_absolute_a_ave_compute().
+ *
+ * ABS( phase_average_amps - measured_c_phase_amps )
+ */
+function computed_field_field_c_a_phase_absolute_a_ave_compute(&$entity_field, $entity_type, $entity, $field, $instance, $langcode, $items) {
+  $values = $entity->field_phase_average_amps[$langcode][$langcode][0]['value']
+    - $entity->field_measured_c_phase_amps[$langcode][0]['value'];
+  $entity_field[$langcode][0]['value'] = abs($values);
+}
+
+/**
+ * Implements hook_field_c_a_phase_absolute_a_ave_display().
+ */
+function computed_field_field_c_a_phase_absolute_a_ave_display($field, $entity_field_item, $entity_lang, $langcode, $entity) {
+  return $entity_field_item['value'];
+}
+
+/**
+ * Implements hook_field_total_amp_imbalance_compute().
+ *
+ * SUM( a_b_phase_absolute_a_ave, b_c_phase_absolute_a_ave, c_a_phase_absolute_a_ave ) / 2
+ */
+function computed_field_field_total_amp_imbalance_compute(&$entity_field, $entity_type, $entity, $field, $instance, $langcode, $items) {
+  $values = array(
+    $entity->field_a_b_phase_absolute_a_ave[$langcode][$langcode][0]['value'],
+    $entity->field_b_c_phase_absolute_a_ave[$langcode][$langcode][0]['value'],
+    $entity->field_c_a_phase_absolute_a_ave[$langcode][$langcode][0]['value'],
+  );  
+  $entity_field[$langcode][0]['value'] = array_sum($values);
+}
+
+/**
+ * Implements hook_field_total_amp_imbalance_display().
+ */
+function computed_field_field_total_amp_imbalance_display($field, $entity_field_item, $entity_lang, $langcode, $entity) {
+  return $entity_field_item['value'];
+}
+
+/**
  * Implements hook_field_motor_capacity_compute().
  *
- * max_amperage / rated_load_average 
+ * max_amperage / rated_load_amperage 
  * > Design Overload Trip Point (TP) = FAULT.
  */
 function computed_field_field_motor_capacity_compute(&$entity_field, $entity_type, $entity, $field, $instance, $langcode, $items) {
   $values = -1.00;
-  if (!empty($entity->field_max_amperage) && !empty($entity->field_rated_load_average)) {
-    if ($entity->field_max_amperage[$langcode][0]['value'] > 0 && $entity->field_rated_load_average[$langcode][0]['value'] > 0) {
-      $values = $entity->field_max_amperage[$langcode][0]['value'] / $entity->field_rated_load_average[$langcode][0]['value'];
+  if (!empty($entity->field_max_amperage) && !empty($entity->field_rated_load_amperage)) {
+    if ($entity->field_max_amperage[$langcode][0]['value'] > 0 && $entity->field_rated_load_amperage[$langcode][0]['value'] > 0) {
+      $values = $entity->field_max_amperage[$langcode][0]['value'] / $entity->field_rated_load_amperage[$langcode][0]['value'];
     }
   }
   $entity_field[$langcode][0]['value'] = $values;
+}
+
+/**
+ * Implements hook_field_a_b_phase_absolute_v_ave_compute().
+ *
+ * ABS( phase_average_volts - a_b_phase_rms_volts )
+ */
+function computed_field_field_a_b_phase_absolute_v_ave_compute(&$entity_field, $entity_type, $entity, $field, $instance, $langcode, $items) {
+  $values = $entity->field_phase_average_volts[$langcode][$langcode][0]['value']
+    - $entity->field_a_b_phase_rms_volts[$langcode][0]['value'];
+  $entity_field[$langcode][0]['value'] = abs($values);
+}
+
+/**
+ * Implements hook_field_a_b_phase_absolute_v_ave_display().
+ */
+function computed_field_field_a_b_phase_absolute_v_ave_display($field, $entity_field_item, $entity_lang, $langcode, $entity) {
+  return $entity_field_item['value'];
 }
 
 /**
@@ -93,6 +390,44 @@ function computed_field_field_over_under_full_load_amps_compute(&$entity_field, 
  * Implements hook_field_over_under_full_load_amps_display().
  */
 function computed_field_field_over_under_full_load_amps_display($field, $entity_field_item, $entity_lang, $langcode, $entity) {
+  return $entity_field_item['value'];
+}
+
+/**
+ * Implements hook_field_max_body_temp_compute().
+ * 
+ * MAX( body_temp )
+ */
+function computed_field_field_max_body_temp_compute(&$entity_field, $entity_type, $entity, $field, $instance, $langcode, $items) {
+  $values = array();
+  foreach ($entity->field_body_temp[$langcode] as $temp) {
+    $values[] = $temp['value'];
+  }
+  $entity_field[$langcode][0]['value'] = max($values);
+}
+
+/**
+ * Implements_hook_field_max_body_temp_display().
+ */
+function computed_field_field_max_body_temp_display($field, $entity_field_item, $entity_lang, $langcode, $entity) {
+  return $entity_field_item['value'];
+}
+
+/**
+ * Implements hook_field_motor_est_output_rpm_compute().
+ *
+ * ( 120 * measured_display_frequency ) / motor_poles
+ */
+function computed_field_field_motor_est_output_sync_rpm_compute(&$entity_field, $entity_type, $entity, $field, $instance, $langcode, $items) {
+  $values = (120 * $entity->field_measured_display_frequency[$langcode][0]['value'])
+    / $entity->field_motor_poles[$langcode][0]['value'];
+  $entity_field[$langcode][0]['value'] = $values;
+}
+
+/**
+ * Implements hook_field_motor_est_output_rpm_display().
+ */
+function computed_field_field_motor_est_output_sync_rpm_display($field, $entity_field_item, $entity_lang, $langcode, $entity) {
   return $entity_field_item['value'];
 }
 
@@ -298,14 +633,12 @@ function computed_field_field_estimated_power_factor_display($field, $entity_fie
  * ( phase_average_volts * phase_average_amps * SQRT( 3 ) * estimated_power_factor ) / 1000
  */
 function computed_field_field_estimated_ave_motor_kw_compute(&$entity_field, $entity_type, $entity, $field, $instance, $langcode, $items) {
-  dpm($entity);
   $values = ($entity->field_phase_average_volts[$langcode][$langcode][0]['value']
     * $entity->field_phase_average_amps[$langcode][0]['value']
     * sqrt(3)
     * $entity->field_estimated_power_factor[$langcode][$langcode][0]['value'])
     / 1000;
   $entity_field[$langcode][0]['value'] = $values;
-  dpm($entity_field);
 }
 
 /**
@@ -351,337 +684,14 @@ function computed_field_field_igv_position_display($field, $entity_field_item, $
   return $entity_field_item['value'];
 }
 
-/**
- * Implements hook_field_nameplate_calculated_hp_compute().
- *
- * ( system_design_voltage * rated_load_amperage * nameplate_rated_fl_efficiency * SQRT( 3 ) * nameplate_power_factor ) / 746
- */
-function computed_field_field_nameplate_calculated_hp_compute(&$entity_field, $entity_type, $entity, $field, $instance, $langcode, $items) {
-  $values = ($entity->field_system_design_voltage[$langcode][0]['value']
-    * $entity->field_rated_load_amperage[$langcode][0]['value']
-    * $entity->field_nameplate_rated_efficiency[$langcode][0]['value']
-    * sqrt(3)
-    * $entity->field_nameplate_power_factor[$langcode][0]['value'])
-    / 746;
-  $entity_field[$langcode][0]['value'] = $values;
-}
 
-/**
- * Implements hook_field_nameplate_calculated_hp_display().
- */
-function computed_field_field_nameplate_calculated_hp_display($field, $entity_field_item, $entity_lang, $langcode, $entity) {
-  return $entity_field_item['value'];
-}
 
-/**
- * Implements hook_field_motor_kw_at_fla_compute().
- * 
- * ( system_design_voltage * rated_load_amperage * SQRT( 3 ) * nameplate_power_factor ) / 1000
- */
-function computed_field_field_motor_kw_at_fla_compute(&$entity_field, $entity_type, $entity, $field, $instance, $langcode, $items) {
-  $values = ($entity->field_system_design_voltage[$langcode][0]['value']
-    * $entity->field_rated_load_amperage[$langcode][0]['value']
-    * sqrt(3)
-    * $entity->field_nameplate_power_factor[$langcode][0]['value'])
-    / 1000;
-  $entity_field[$langcode][0]['value'] = $values;
-}
 
-/**
- * Implements hook_field_motor_kw_at_fla_display().
- */
-function computed_field_field_motor_kw_at_fla_display($field, $entity_field_item, $entity_lang, $langcode, $entity) {
-  return $entity_field_item['value'];
-}
 
-/**
- * Implements hook_field_kva_compute().
- *
- * (SQRT(3) * system_design_voltage * system_rated_load_average) / 1000
- */
-function computed_field_field_kva_compute(&$entity_field, $entity_type, $entity, $field, $instance, $langcode, $items) {
-  $values = (sqrt(3)
-    * $entity->field_system_design_voltage[$langcode][0]['value']
-    * $entity->field_rated_load_amperage[$langcode][0]['value'])
-    / 1000;
-  $entity_field[$langcode][0]['value'] = $values;
-}
 
-/**
- * Implements hook_field_kva_display().
- */
-function computed_field_field_kva_display($field, $entity_field_item, $entity_lang, $langcode, $entity) {
-  return $entity_field_item['value'];
-}
 
-/**
- * Implements hook_field_phase_average_volts_compute().
- *
- * AVERAGE( a_b_phase_rms_volts, b_c_phase_rms_volts, c_a_phase_rms_volts )
- */
-function computed_field_field_phase_average_volts_compute(&$entity_field, $entity_type, $entity, $field, $instance, $langcode, $items) {
-  $values = array(
-    $entity->field_a_b_phase_rms_volts[$langcode][0]['value'],
-    $entity->field_b_c_phase_rms_volts[$langcode][0]['value'],
-    $entity->field_c_a_phase_rms_volts[$langcode][0]['value'],
-  );
-  $entity_field[$langcode][0]['value'] = array_sum($values) / count($values);
-}
 
-/**
- * Implements hook_field_phase_average_volts_display().
- */
-function computed_field_field_phase_average_volts_display($field, $entity_field_item, $entity_lang, $langcode, $entity) {
-  return $entity_field_item['value'];
-}
 
-/**
- * Implements hook_field_max_voltage_compute().
- *
- * MAX( a_b_phase_rms_volts, b_c_phase_rms_volts, c_a_phase_rms_volts )
- */
-function computed_field_field_max_voltage_compute(&$entity_field, $entity_type, $entity, $field, $instance, $langcode, $items) {
-  $values = array(
-    $entity->field_a_b_phase_rms_volts[$langcode][0]['value'],
-    $entity->field_b_c_phase_rms_volts[$langcode][0]['value'],
-    $entity->field_c_a_phase_rms_volts[$langcode][0]['value'],
-  );
-  $entity_field[$langcode][0]['value'] = max($values);
-}
 
-/**
- * Implements hook_field_max_voltage_display().
- */
-function computed_field_field_max_voltage_display($field, $entity_field_item, $entity_lang, $langcode, $entity) {
-  return $entity_field_item['value'];
-}
 
-/**
- * Implements hook_field_a_b_phase_absolute_v_ave_compute().
- *
- * ABS( phase_average_volts - a_b_phase_rms_volts )
- */
-function computed_field_field_a_b_phase_absolute_v_ave_compute(&$entity_field, $entity_type, $entity, $field, $instance, $langcode, $items) {
-  $values = $entity->field_phase_average_volts[$langcode][$langcode][0]['value']
-    - $entity->field_a_b_phase_rms_volts[$langcode][0]['value'];
-  $entity_field[$langcode][0]['value'] = abs($values);
-}
 
-/**
- * Implements hook_field_a_b_phase_absolute_v_ave_display().
- */
-function computed_field_field_a_b_phase_absolute_v_ave_display($field, $entity_field_item, $entity_lang, $langcode, $entity) {
-  return $entity_field_item['value'];
-}
-
-/**
- * Implements hook_field_b_c_phase_absolute_v_ave_compute().
- *
- * ABS( phase_average_volts - b_c_phase_rms_volts )
- */
-function computed_field_field_b_c_phase_absolute_v_ave_compute(&$entity_field, $entity_type, $entity, $field, $instance, $langcode, $items) {
-  $values = $entity->field_phase_average_volts[$langcode][$langcode][0]['value']
-    - $entity->field_b_c_phase_rms_volts[$langcode][0]['value'];
-  $entity_field[$langcode][0]['value'] = abs($values);
-}
-
-/**
- * Implements hook_field_b_c_phase_absolute_v_ave_display().
- */
-function computed_field_field_b_c_phase_absolute_v_ave_display($field, $entity_field_item, $entity_lang, $langcode, $entity) {
-  return $entity_field_item['value'];
-}
-
-/**
- * Implements hook_field_c_a_phase_absolute_v_ave_compute().
- *
- * ABS( phase_average_volts - c_a_phase_rms_volts )
- */
-function computed_field_field_c_a_phase_absolute_v_ave_compute(&$entity_field, $entity_type, $entity, $field, $instance, $langcode, $items) {
-  $values = $entity->field_phase_average_volts[$langcode][$langcode][0]['value']
-    - $entity->field_c_a_phase_rms_volts[$langcode][0]['value'];
-  $entity_field[$langcode][0]['value'] = abs($values);
-}
-
-/**
- * Implements hook_field_c_a_phase_absolute_v_ave_display().
- */
-function computed_field_field_c_a_phase_absolute_v_ave_display($field, $entity_field_item, $entity_lang, $langcode, $entity) {
-  return $entity_field_item['value'];
-}
-
-/**
- * Implements hook_field_total_volt_imbalance_compute().
- *
- * SUM( a_b_phase_absolute_v_ave, b_c_phase_absolute_v_ave, c_a_phase_absolute_v_ave ) / 2
- */
-function computed_field_field_total_volt_imbalance_compute(&$entity_field, $entity_type, $entity, $field, $instance, $langcode, $items) {
-  $values = array(
-    $entity->field_a_b_phase_absolute_v_ave,
-    $entity->field_b_c_phase_absolute_v_ave,
-    $entity->field_c_a_phase_absolute_v_ave,
-  );
-  $entity_field[$langcode][0]['value'] = array_sum($values);
-}
-
-/**
- * Implements hook_field_total_volt_imbalance_display().
- */
-function computed_field_field_total_volt_imbalance_display($field, $entity_field_item, $entity_lang, $langcode, $entity) {
-  return $entity_field_item['value'];
-}
-
-/**
- * Implements hook_field_phase_average_amps_compute().
- *
- * AVERAGE( measured_a_phase_amps, measured_b_phase_amps, measured_c_phase_amps )
- */
-function computed_field_field_phase_average_amps_compute(&$entity_field, $entity_type, $entity, $field, $instance, $langcode, $items) {
-  $values = array(
-    $entity->field_measured_a_phase_amps[$langcode][0]['value'],
-    $entity->field_measured_b_phase_amps[$langcode][0]['value'],
-    $entity->field_measured_c_phase_amps[$langcode][0]['value'],
-  );
-  $entity_field[$langcode][0]['value'] = array_sum($values) / count($values);
-}
-
-/**
- * Implements hook_field_phase_average_amps_display().
- */
-function computed_field_field_phase_average_amps_display($field, $entity_field_item, $entity_lang, $langcode, $entity) {
-  return $entity_field_item['value'];
-}
-
-/**
- * Implements hook_field_max_amperage_compute().
- *
- * MAX( measured_a_phase_amps, measured_b_phase_amps, measured_c_phase_amps )
- */
-function computed_field_field_max_amperage_compute(&$entity_field, $entity_type, $entity, $field, $instance, $langcode, $items) {
-  $values = array(
-    $entity->field_measured_a_phase_amps[$langcode][0]['value'],
-    $entity->field_measured_b_phase_amps[$langcode][0]['value'],
-    $entity->field_measured_c_phase_amps[$langcode][0]['value'],
-  );
-  $entity_field[$langcode][0]['value'] = max($values);
-}
-
-/**
- * Implements hook_field_max_amperage_display().
- */
-function computed_field_field_max_amperage_display($field, $entity_field_item, $entity_lang, $langcode, $entity) {
-  return $entity_field_item['value'];
-}
-
-/**
- * Implements hook_field_a_b_phase_absolute_a_ave_compute().
- *
- * ABS( phase_average_amps - measured_a_phase_amps )
- */
-function computed_field_field_a_b_phase_absolute_a_ave_compute(&$entity_field, $entity_type, $entity, $field, $instance, $langcode, $items) {
-  $values = $entity->field_phase_average_amps[$langcode][$langcode][0]['value']
-    - $entity->field_measured_a_phase_amps[$langcode][0]['value'];
-  $entity_field[$langcode][0]['value'] = abs($values);
-}
-
-/**
- * Implements hook_field_a_b_phase_absolute_a_ave_display().
- */
-function computed_field_field_a_b_phase_absolute_a_ave_display($field, $entity_field_item, $entity_lang, $langcode, $entity) {
-  return $entity_field_item['value'];
-}
-
-/**
- * Implements hook_field_b_c_phase_absolute_a_ave_compute().
- *
- * ABS( phase_average_amps - measured_b_phase_amps )
- */
-function computed_field_field_b_c_phase_absolute_a_ave_compute(&$entity_field, $entity_type, $entity, $field, $instance, $langcode, $items) {
-  $values = $entity->field_phase_average_amps[$langcode][$langcode][0]['value']
-    - $entity->field_measured_b_phase_amps[$langcode][0]['value'];
-  $entity_field[$langcode][0]['value'] = abs($values);
-}
-
-/**
- * Implements hook_field_b_c_phase_absolute_a_ave_display().
- */
-function computed_field_field_b_c_phase_absolute_a_ave_display($field, $entity_field_item, $entity_lang, $langcode, $entity) {
-  return $entity_field_item['value'];
-}
-
-/**
- * Implements hook_field_c_a_phase_absolute_a_ave_compute().
- *
- * ABS( phase_average_amps - measured_c_phase_amps )
- */
-function computed_field_field_c_a_phase_absolute_a_ave_compute(&$entity_field, $entity_type, $entity, $field, $instance, $langcode, $items) {
-  $values = $entity->field_phase_average_amps[$langcode][$langcode][0]['value']
-    - $entity->field_measured_c_phase_amps[$langcode][0]['value'];
-  $entity_field[$langcode][0]['value'] = abs($values);
-}
-
-/**
- * Implements hook_field_c_a_phase_absolute_a_ave_display().
- */
-function computed_field_field_c_a_phase_absolute_a_ave_display($field, $entity_field_item, $entity_lang, $langcode, $entity) {
-  return $entity_field_item['value'];
-}
-
-/**
- * Implements hook_field_total_amp_imbalance_compute().
- *
- * SUM( a_b_phase_absolute_a_ave, b_c_phase_absolute_a_ave, c_a_phase_absolute_a_ave ) / 2
- */
-function computed_field_field_total_amp_imbalance_compute(&$entity_field, $entity_type, $entity, $field, $instance, $langcode, $items) {
-  $values = array(
-    $entity->field_a_b_phase_absolute_a_ave[$langcode][$langcode][0]['value'],
-    $entity->field_b_c_phase_absolute_a_ave[$langcode][$langcode][0]['value'],
-    $entity->field_c_a_phase_absolute_a_ave[$langcode][$langcode][0]['value'],
-  );  
-  $entity_field[$langcode][0]['value'] = array_sum($values);
-}
-
-/**
- * Implements hook_field_total_amp_imbalance_display().
- */
-function computed_field_field_total_amp_imbalance_display($field, $entity_field_item, $entity_lang, $langcode, $entity) {
-  return $entity_field_item['value'];
-}
-
-/**
- * Implements hook_field_max_body_temp_compute().
- * 
- * MAX( body_temp )
- */
-function computed_field_field_max_body_temp_compute(&$entity_field, $entity_type, $entity, $field, $instance, $langcode, $items) {
-  $values = array();
-  foreach ($entity->field_body_temp[$langcode] as $temp) {
-    $values[] = $temp['value'];
-  }
-  $entity_field[$langcode][0]['value'] = max($values);
-}
-
-/**
- * Implements_hook_field_max_body_temp_display().
- */
-function computed_field_field_max_body_temp_display($field, $entity_field_item, $entity_lang, $langcode, $entity) {
-  return $entity_field_item['value'];
-}
-
-/**
- * Implements hook_field_motor_est_output_rpm_compute().
- *
- * ( 120 * measured_display_frequency ) / motor_poles
- */
-function computed_field_field_motor_est_output_sync_rpm_compute(&$entity_field, $entity_type, $entity, $field, $instance, $langcode, $items) {
-  $values = (120 * $entity->field_measured_display_frequency[$langcode][0]['value'])
-    / $entity->field_motor_poles[$langcode][0]['value'];
-  $entity_field[$langcode][0]['value'] = $values;
-}
-
-/**
- * Implements hook_field_motor_est_output_rpm_display().
- */
-function computed_field_field_motor_est_output_sync_rpm_display($field, $entity_field_item, $entity_lang, $langcode, $entity) {
-  return $entity_field_item['value'];
-}
