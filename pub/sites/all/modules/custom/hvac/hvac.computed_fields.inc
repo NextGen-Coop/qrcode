@@ -300,6 +300,13 @@ function computed_field_field_motor_capacity_compute(&$entity_field, $entity_typ
 }
 
 /**
+ * Implements hook_field_motor_capacity_display().
+ */
+function computed_field_field_motor_capacity_display($field, $entity_field_item, $entity_lang, $langcode, $entity) {
+  return $entity_field_item['value'];
+}
+
+/**
  * Implements hook_field_a_b_phase_absolute_v_ave_compute().
  *
  * ABS( phase_average_volts - a_b_phase_rms_volts )
@@ -314,13 +321,6 @@ function computed_field_field_a_b_phase_absolute_v_ave_compute(&$entity_field, $
  * Implements hook_field_a_b_phase_absolute_v_ave_display().
  */
 function computed_field_field_a_b_phase_absolute_v_ave_display($field, $entity_field_item, $entity_lang, $langcode, $entity) {
-  return $entity_field_item['value'];
-}
-
-/**
- * Implements hook_field_motor_capacity_display().
- */
-function computed_field_field_motor_capacity_display($field, $entity_field_item, $entity_lang, $langcode, $entity) {
   return $entity_field_item['value'];
 }
 
@@ -683,15 +683,3 @@ function computed_field_field_igv_position_compute(&$entity_field, $entity_type,
 function computed_field_field_igv_position_display($field, $entity_field_item, $entity_lang, $langcode, $entity) {
   return $entity_field_item['value'];
 }
-
-
-
-
-
-
-
-
-
-
-
-
